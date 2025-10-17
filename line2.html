@@ -1,0 +1,130 @@
+<!doctype HTML>
+<html>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<script src="js/aframe.min.js"></script>
+<script src="js/aframe-ar.js"></script>
+<body style="margin: 0px; overflow: hidden;">
+
+<script>
+
+// store visibility data in object;
+//  can only draw line when both are visible.
+let markerVisible = { m0: false, m1: false };
+
+AFRAME.registerComponent('registerevents', {
+    init: function () 
+    {
+        let marker = this.el;
+        
+        marker.addEventListener('markerFound', function() {
+            markerVisible[ marker.id ] = true;
+        });
+
+        marker.addEventListener('markerLost', function() {
+            markerVisible[ marker.id ] = false;
+        });
+    }
+});
+
+AFRAME.registerComponent('run', {
+    init: function()
+    {
+        this.m0 = document.querySelector("#m0");
+        this.m1 = document.querySelector("#m1");
+        this.p0 = new THREE.Vector3();
+        this.p1 = new THREE.Vector3(); 
+        
+        // Build the cylinder with Three.js
+        let geometry = new THREE.CylinderGeometry( 0.05, 0.05, 1, 12 );
+        geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0.5, 0 ) );
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationX( THREE.Math.degToRad( 90 ) ) );
+        let material = new THREE.MeshLambertMaterial( {color: 0xFF0000} );
+        this.cylinder = new THREE.Mesh( geometry, material );
+
+        // Wrap cylinder in an A-Frame entity so it's clickable
+        this.cylinderEl = document.createElement("a-entity");
+        this.cylinderEl.setObject3D("mesh", this.cylinder);
+        this.cylinderEl.classList.add("clickable");
+
+        // Popup text entity (hidden by default)
+        this.popup = document.createElement("a-text");
+        this.popup.setAttribute("value", "Cylinder clicked!");
+        this.popup.setAttribute("color", "yellow");
+        this.popup.setAttribute("align", "center");
+        this.popup.setAttribute("position", "0 0.5 0"); // slightly above the cylinder
+        this.popup.setAttribute("visible", "false");
+        this.cylinderEl.appendChild(this.popup);
+
+        // Add event listener for clicks
+        this.cylinderEl.addEventListener("click", () => {
+            this.showPopup();
+        });
+
+        // Add the clickable entity to the cylinder group
+        this.cylinderGroupEl = document.querySelector('#cylinderGroup');
+        this.cylinderGroupEl.appendChild(this.cylinderEl);
+    },
+
+    showPopup: function() {
+        this.popup.setAttribute("visible", "true");
+        setTimeout(() => {
+            this.popup.setAttribute("visible", "false");
+        }, 2000); // hide after 2 seconds
+    },
+    
+    tick: function (time, deltaTime) 
+    {
+        if ( markerVisible["m0"] && markerVisible["m1"] )
+        {
+            this.m0.object3D.getWorldPosition(this.p0);
+            this.m1.object3D.getWorldPosition(this.p1);
+            
+            let distance = this.p0.distanceTo( this.p1 );
+            this.cylinderGroupEl.object3D.lookAt( this.p1 );            
+            this.cylinder.scale.set(1,1,distance);
+            this.cylinder.visible = true;
+        }
+        else
+        {
+            this.cylinder.visible = false;
+        }
+    }
+});
+
+</script>
+
+<a-scene embedded vr-mode-ui="enabled: false;" 
+          arjs="debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
+
+    <a-assets>
+		<img id="grid" src="images/border.png" />
+	</a-assets>
+
+    <a-marker type="barcode" value="0" id="m0" registerevents>
+        <a-sphere radius="0.10" color="red"></a-sphere>
+        <!-- this group rotates the cylinder to point at marker m1 -->
+        <a-entity id="cylinderGroup"></a-entity>
+    </a-marker>
+
+    <a-marker type="barcode" value="1" id="m1" registerevents>
+        <a-sphere radius="0.10" color="red"></a-sphere>
+    </a-marker>
+    
+    <a-marker type="pattern" url="data/kanji.patt" id="baseMarker" >
+    </a-marker>
+
+    <!-- Camera + cursor for interaction -->
+    <a-entity camera>
+        <a-entity cursor="fuse: false"
+                  raycaster="objects: .clickable"
+                  position="0 0 -1"
+                  geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                  material="color: white; shader: flat">
+        </a-entity>
+    </a-entity>
+
+    <a-entity run></a-entity>
+
+</a-scene>
+</body>
+</html>

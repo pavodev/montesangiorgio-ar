@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "Quando le montagne erano oceani",
+    "content": "<p>Immagina di tuffarti indietro nel tempo, 250 milioni di anni fa. Dove oggi si alza il Monte San Giorgio, c’era un mare caldo e luminoso, attraversato da rettili marini, pesci scintillanti e strane piante che ondeggiavano sul fondale. Strato dopo strato, quel mondo è rimasto impresso nella roccia come in un album fotografico della vita antica. Oggi, camminando tra i suoi sentieri, non calpestiamo solo pietre, ma i resti di un oceano scomparso: un tesoro geologico che ci svela come le montagne nascono dal mare e come la vita rinasce nel tempo.</p>",
+    "chapters":[
+      {
+        "title": "a) 250–240 milioni di anni fa: un mare tropicale",
+        "content": "<p>Nel Triassico Medio, l’attuale Monte San Giorgio era una laguna tropicale poco profonda, protetta da una barriera corallina e collegata al grande oceano Tetide. L’acqua calma e poco ossigenata favoriva la fossilizzazione: quando animali e piante cadevano sul fondale, non venivano distrutti ma conservati in modo eccezionale.</p>"
+      },
+      {
+        "title": "b) Dalla laguna alle rocce fossilifere",
+        "content": "<p>Sedimenti di fango, sabbia e resti organici si accumularono per milioni di anni, trasformandosi in strati di roccia alternati tra bitume (scisti bituminosi) e calcari. Nei loro strati sono custoditi almeno sei livelli fossiliferi principali, una vera “cronaca naturale” di oltre 250 milioni di anni.</p><ul><li>Formazione di Besano (247–242 mio. anni fa): fossili di rettili marini come Mixosaurus e Tanystropheus. (FOTO)</li><li>Calcare di Meride (242–236 mio. anni fa): ecosistemi più ricchi, con piante, insetti e nuovi rettili.</li><li>(FOTO)</li></ul><blockquote><strong>Curiosità</strong>: Formazione del marmo di Arzo, si è formato sul fondale di un antico oceano, laguna del Monte San Giorgio, i movimenti geologici interni al Monte San Giorgio hanno frantumato la roccia sedimentaria che si è ricristalizzata con altri minerali, dando origine a una breccia eterogenea straordinariamente colorata. </blockquote>"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "title": "Quando le montagne erano oceani",
+    "content": "<p>Immagina di tuffarti indietro nel tempo, 250 milioni di anni fa. Dove oggi si alza il Monte San Giorgio, c’era un mare caldo e luminoso, attraversato da rettili marini, pesci scintillanti e strane piante che ondeggiavano sul fondale. Strato dopo strato, quel mondo è rimasto impresso nella roccia come in un album fotografico della vita antica. Oggi, camminando tra i suoi sentieri, non calpestiamo solo pietre, ma i resti di un oceano scomparso: un tesoro geologico che ci svela come le montagne nascono dal mare e come la vita rinasce nel tempo.</p>",
+    "chapters":[
+      {
+        "title": "a) 250–240 milioni di anni fa: un mare tropicale",
+        "content": "<p>Nel Triassico Medio, l’attuale Monte San Giorgio era una laguna tropicale poco profonda, protetta da una barriera corallina e collegata al grande oceano Tetide. L’acqua calma e poco ossigenata favoriva la fossilizzazione: quando animali e piante cadevano sul fondale, non venivano distrutti ma conservati in modo eccezionale.</p>"
+      },
+      {
+        "title": "b) Dalla laguna alle rocce fossilifere",
+        "content": "<p>Sedimenti di fango, sabbia e resti organici si accumularono per milioni di anni, trasformandosi in strati di roccia alternati tra bitume (scisti bituminosi) e calcari. Nei loro strati sono custoditi almeno sei livelli fossiliferi principali, una vera “cronaca naturale” di oltre 250 milioni di anni.</p><ul><li>Formazione di Besano (247–242 mio. anni fa): fossili di rettili marini come Mixosaurus e Tanystropheus. (FOTO)</li><li>Calcare di Meride (242–236 mio. anni fa): ecosistemi più ricchi, con piante, insetti e nuovi rettili.</li><li>(FOTO)</li></ul><blockquote><strong>Curiosità</strong>: Formazione del marmo di Arzo, si è formato sul fondale di un antico oceano, laguna del Monte San Giorgio, i movimenti geologici interni al Monte San Giorgio hanno frantumato la roccia sedimentaria che si è ricristalizzata con altri minerali, dando origine a una breccia eterogenea straordinariamente colorata. </blockquote>"
+      }
+    ]
+  }
+]
