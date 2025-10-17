@@ -1,2 +1,1 @@
-# AR.js-examples
-Examples using the AR.js library
+Project created with AR.js's example code
