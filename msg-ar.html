@@ -321,8 +321,7 @@
     </a-assets>
 
     <a-entity camera>
-      <a-entity cursor="fuse: false; rayOrigin: mouse;"
-        raycaster="objects: .clickable; recursive: true; near: 0.001; far: 2000">
+      <a-entity cursor="fuse: false; rayOrigin: mouse;" raycaster="objects: .clickable;">
       </a-entity>
     </a-entity>
   </a-scene>
@@ -355,8 +354,8 @@
       {
         id: 0,
         pattern: "data/letterA.patt",
-        title: "Quando le montagne erano oceani",
-        pin_title: "La nascita",
+        title: "1. Quando le montagne erano oceani",
+        pin_title: "1. La nascita",
         pin_position: { x: -15 * CM_TO_AR_SCALE, y: 0, z: -10 * CM_TO_AR_SCALE },
         content: "<p>Immagina di tuffarti indietro nel tempo, 250 milioni di anni fa. Dove oggi si alza il Monte San Giorgio, c’era un mare caldo e luminoso, attraversato da rettili marini, pesci scintillanti e strane piante che ondeggiavano sul fondale. Strato dopo strato, quel mondo è rimasto impresso nella roccia come in un album fotografico della vita antica. Oggi, camminando tra i suoi sentieri, non calpestiamo solo pietre, ma i resti di un oceano scomparso: un tesoro geologico che ci svela come le montagne nascono dal mare e come la vita rinasce nel tempo.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
@@ -386,8 +385,8 @@
       {
         id: 1,
         pattern: "data/letterB.patt",
-        title: "Il Monte San Giorgio, una lunga storia della vita",
-        pin_title: "Storia della vita",
+        title: "2. Il Monte San Giorgio, una lunga storia della vita",
+        pin_title: "2. Storia della vita",
         pin_position: { x: -10 * CM_TO_AR_SCALE, y: 0, z: -20 * CM_TO_AR_SCALE },
         content: "<p>Il Monte San Giorgio non è solo la montagna dei fossili triassici, ma anche un luogo che custodisce la memoria umana. Qui, natura e cultura si intrecciano: i luoghi riconosciuti come sacri sono diventati templi e santuari cristiani;  e le vie di transito sono rimaste sentieri di incontri. Ogni epoca ha inciso segni che ancora oggi raccontano la lunga storia della coevoluzione della vita del bosco e di quella umana.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
@@ -417,8 +416,8 @@
       {
         id: 2,
         pattern: "data/letterC.patt",
-        title: "Botanica",
-        pin_title: "Botanica",
+        title: "3. Botanica",
+        pin_title: "3. Botanica",
         pin_position: { x: 0 * CM_TO_AR_SCALE, y: 0, z: 0 * CM_TO_AR_SCALE },
         content: "<p>Il Monte San Giorgio non racconta solo storie di fossili e mari antichi, ma anche di piante che curano, nutrono e profumano il tempo presente. Qui la biodiversità è straordinaria: tra boschi, radure e pendii crescono specie rare e preziose, molte conosciute fin dall’antichità per le loro proprietà medicinali e alimentari.</p><p>In questa valigia troverai semi da piantare, simbolo di continuità e vita: un invito a portare un frammento di questa montagna nel tuo giardino.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
@@ -690,14 +689,16 @@
 
       // Pin model
       const pin = document.createElement("a-entity");
+      pin.classList.add("clickable");
       pin.setAttribute("position", `${item.pin_position.x} ${item.pin_position.y} ${item.pin_position.z}`);
-      // pin.setAttribute("position", "0 0 0");
+      pin.setAttribute('cursor', 'rayOrigin: mouse');
       pin.setAttribute("scale", "4.5 4.5 4.5");        /* uniform scale */
       pin.setAttribute("gltf-model", "#pin");
       pin.dataset.idx = idx;
       // pin.setAttribute('animation__pulse',
       //   'startEvents: pulse; property: scale; from: 7 7 7; to: 8.5 8.5 8.5; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
       marker.appendChild(pin);
+      pin.object3D.frustumCulled = false;
 
       // Test cube (should look perfectly cubic)
       // const test = document.createElement('a-box');
@@ -707,103 +708,148 @@
 
       // Label
       const label = document.createElement("a-text");
+      label.classList.add("clickable");
       label.setAttribute("value", item.pin_title);
       label.setAttribute("align", "center");
       label.setAttribute("color", "#FFFFFF");
       label.setAttribute("position", `${item.pin_position.x} ${item.pin_position.y + 3} ${item.pin_position.z}`);
-      // label.setAttribute("position", "0 3 0");
+      label.setAttribute('cursor', 'rayOrigin: mouse');
       label.setAttribute("scale", "2.5 2.5 2.5");  /* uniform */
       label.setAttribute("side", "double");
-      label.setAttribute("look-at", "[camera]");
+      // label.setAttribute("look-at", "[camera]");
       label.dataset.idx = idx;
       label.setAttribute('animation__lpulse',
         'startEvents: lpulse; property: scale; from: 2.5 2.5 2.5; to: 3 3 3; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
       marker.appendChild(label);
+      label.object3D.frustumCulled = false;
 
-      // Transparent hit box
+      // Transparent hit box - larger area for easier clicking
       const hitBox = document.createElement("a-box");
+
+      const hitboxWidth = 4;    // increased for easier clicking
+      const hitboxHeight = 6;   // covers pin + label with margin
+      const hitboxDepth = 4;    // increased for easier clicking
+
+      hitBox.classList.add("clickable");
       hitBox.setAttribute("material", {
         color: '#FFF',
-        opacity: 0.3,      // keep visible for testing
+        opacity: 0.0,  // completely invisible
         transparent: true,
         side: 'double',
-        depthTest: true,   // ensure proper depth testing
-        depthWrite: true   // write to depth buffer
+        depthTest: false,  // don't interfere with depth testing
+        depthWrite: false   // don't write to depth buffer
       });
-      hitBox.classList.add("clickable");
+      hitBox.setAttribute('position',
+        `${item.pin_position.x} ${item.pin_position.y + 2.5} ${item.pin_position.z}`
+      );
+      hitBox.setAttribute('width', hitboxWidth);
+      hitBox.setAttribute('height', hitboxHeight);
+      hitBox.setAttribute('depth', hitboxDepth);
+      hitBox.setAttribute('cursor', 'rayOrigin: mouse');
       hitBox.dataset.idx = idx;
       marker.appendChild(hitBox);
+      hitBox.object3D.frustumCulled = false;
 
       // Click handler
-      const handleClick = () => {
-        pin.emit('pulse'); label.emit('lpulse');
-        if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) { } }
-        showPopup(item);
+      // const handleClick = () => {
+      //   pin.emit('pulse'); label.emit('lpulse');
+      //   if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) { } }
+      //   showPopup(item);
+      // };
+
+      const handleClick = (ev) => {
+        console.log('Click detected on:', ev.target.tagName, 'idx:', ev.target.dataset.idx);
+
+        // Prevent event bubbling
+        ev.stopPropagation();
+
+        const clickableEl = ev.target.closest('[data-idx]');
+        if (!clickableEl) return;
+
+        const idx = clickableEl.dataset.idx;
+        const data = popupData[idx];
+        if (!data) return;
+
+        // Emit animations
+        pin.emit('pulse');
+        label.emit('lpulse');
+
+        // Haptic feedback
+        if (navigator.vibrate) {
+          try { navigator.vibrate(15); }
+          catch (e) { }
+        }
+
+        showPopup(data);
       };
 
       // Size hit box
-      const sizeHitBox = () => {
-        const THREE = window.THREE;
-        const modelObj = pin.getObject3D('mesh') || pin.object3D;
-        if (!modelObj || !marker.object3D) return;
+      // const sizeHitBox = () => {
+      //   const THREE = window.THREE;
+      //   const modelObj = pin.getObject3D('mesh') || pin.object3D;
+      //   if (!modelObj || !marker.object3D) return;
 
-        const boxWorld = new THREE.Box3().setFromObject(modelObj);
-        const minLocal = boxWorld.min.clone();
-        const maxLocal = boxWorld.max.clone();
-        marker.object3D.worldToLocal(minLocal);
-        marker.object3D.worldToLocal(maxLocal);
+      //   const boxWorld = new THREE.Box3().setFromObject(modelObj);
+      //   const minLocal = boxWorld.min.clone();
+      //   const maxLocal = boxWorld.max.clone();
+      //   marker.object3D.worldToLocal(minLocal);
+      //   marker.object3D.worldToLocal(maxLocal);
 
-        const minX = Math.min(minLocal.x, maxLocal.x);
-        const maxX = Math.max(minLocal.x, maxLocal.x);
-        const minY = Math.min(minLocal.y, maxLocal.y);
-        const maxY = Math.max(minLocal.y, maxLocal.y);
-        const minZ = Math.min(minLocal.z, maxLocal.z);
-        const maxZ = Math.max(minLocal.z, maxLocal.z);
+      //   const minX = Math.min(minLocal.x, maxLocal.x);
+      //   const maxX = Math.max(minLocal.x, maxLocal.x);
+      //   const minY = Math.min(minLocal.y, maxLocal.y);
+      //   const maxY = Math.max(minLocal.y, maxLocal.y);
+      //   const minZ = Math.min(minLocal.z, maxLocal.z);
+      //   const maxZ = Math.max(minLocal.z, maxLocal.z);
 
-        const labelPos = label.object3D.position;
-        const labelScale = label.getAttribute('scale') || { x: 3, y: 3, z: 3 };
-        const labelHalfH = 0.45 * labelScale.y;
+      //   const labelPos = label.object3D.position;
+      //   const labelScale = label.getAttribute('scale') || { x: 3, y: 3, z: 3 };
+      //   const labelHalfH = 0.45 * labelScale.y;
 
-        const marginY = 0.4;
-        const bottomY = minY;
-        const topY = Math.max(maxY, labelPos.y + labelHalfH);
-        const totalH = (topY - bottomY) + marginY;
+      //   const marginY = 0.4;
+      //   const bottomY = minY;
+      //   const topY = Math.max(maxY, labelPos.y + labelHalfH);
+      //   const totalH = (topY - bottomY) + marginY;
 
-        const marginX = 0.3, marginZ = 0.3;
-        const totalW = (maxX - minX) + marginX;
-        const totalD = (maxZ - minZ) + marginZ;
+      //   const marginX = 0.3, marginZ = 0.3;
+      //   const totalW = (maxX - minX) + marginX;
+      //   const totalD = (maxZ - minZ) + marginZ;
 
-        const centerX = (minX + maxX) / 2;
-        const centerZ = (minZ + maxZ) / 2;
-        const centerY = bottomY + totalH / 2;
+      //   const centerX = (minX + maxX) / 2;
+      //   const centerZ = (minZ + maxZ) / 2;
+      //   const centerY = bottomY + totalH / 2;
 
-        // Position hitbox relative to pin position
-        const pinPos = pin.object3D.position;
+      //   // Position hitbox relative to pin position
+      //   const pinPos = pin.object3D.position;
 
-        console.log(`Pin ${idx}: expected position:`, item.pin_position.x, item.pin_position.y, item.pin_position.z);
-        console.log(`Pin ${idx}: object3D position:`, pinPos.x, pinPos.y, pinPos.z);
+      //   console.log(`Pin ${idx}: expected position:`, item.pin_position.x, item.pin_position.y, item.pin_position.z);
+      //   console.log(`Pin ${idx}: object3D position:`, pinPos.x, pinPos.y, pinPos.z);
 
 
-        hitBox.setAttribute('position', `${centerX} ${centerY} ${centerZ}`);
+      //   hitBox.setAttribute('position', `${centerX} ${centerY} ${centerZ}`);
 
-        // hitBox.setAttribute('position', `${pinPos.x + centerX} ${pinPos.y + centerY} ${pinPos.z + centerZ}`);
-        // hitBox.setAttribute('position', `${centerX} ${centerY} ${centerZ}`);
-        hitBox.setAttribute('width', totalW * 3);   // 3x wider
-        hitBox.setAttribute('height', totalH * 2);  // 2x taller
-        hitBox.setAttribute('depth', totalD * 3);   // 3x deeper
+      //   // hitBox.setAttribute('position', `${pinPos.x + centerX} ${pinPos.y + centerY} ${pinPos.z + centerZ}`);
+      //   // hitBox.setAttribute('position', `${centerX} ${centerY} ${centerZ}`);
+      //   hitBox.setAttribute('width', totalW * 3);   // 3x wider
+      //   hitBox.setAttribute('height', totalH * 2);
+      //   hitBox.setAttribute('depth', totalD * 3);   // 3x deeper
 
-        console.log(`Hitbox ${idx} final position:`, centerX, centerY, centerZ);
-      };
+      //   console.log(`Hitbox ${idx} final position:`, centerX, centerY, centerZ);
+      // };
 
-      pin.addEventListener('model-loaded', sizeHitBox);
-      label.addEventListener('componentchanged', (e) => {
-        const n = e.detail && e.detail.name;
-        if (n === 'value' || n === 'scale' || n === 'position' || n === 'text') sizeHitBox();
-      });
+      // pin.addEventListener('model-loaded', sizeHitBox);
+      // label.addEventListener('componentchanged', (e) => {
+      //   const n = e.detail && e.detail.name;
+      //   if (n === 'value' || n === 'scale' || n === 'position' || n === 'text') sizeHitBox();
+      // });
 
+      // Add both click and touch events for better mobile support
       hitBox.addEventListener("click", handleClick);
+      hitBox.addEventListener("touchstart", handleClick, { passive: false });
       pin.addEventListener("click", handleClick);
+      pin.addEventListener("touchstart", handleClick, { passive: false });
       label.addEventListener("click", handleClick);
+      label.addEventListener("touchstart", handleClick, { passive: false });
     });
 
     scene.appendChild(marker);
@@ -822,7 +868,6 @@
 
       function visibleClickableObjects() {
         const els = Array.from(document.querySelectorAll('.clickable'));
-        console.log("ELS", els);
         return els
           .filter(el => {
             let m = el;
@@ -881,26 +926,10 @@
 
         const screenPt = ndcFromEvent(ev, canvas);
         raycaster.setFromCamera(mouse, camera);
-        raycaster.params.Mesh.threshold = 0.5;
+        raycaster.params.Mesh.threshold = 0.1;
 
         const targets = visibleClickableObjects();
-        console.log('🎯 Targets:', targets.length);
-
         const hits = raycaster.intersectObjects(targets, true);
-
-        console.log('👆 Tap at screen:', screenPt.x, screenPt.y);
-        console.log('🎯 Raycaster hits:', hits.length);
-        console.log('📍 Mouse NDC:', mouse.x.toFixed(2), mouse.y.toFixed(2));
-        console.log('📐 Ray origin:', raycaster.ray.origin);
-        console.log('📐 Ray direction:', raycaster.ray.direction);
-
-        // Check what's at the ray's path
-        const allHits = raycaster.intersectObjects(scene.object3D.children, true);
-        console.log('🔍 ALL intersections (not just clickable):', allHits.length);
-        hits.forEach((hit, i) => {
-          console.log(`  Hit ${i}:`, hit.object.type, 'distance:', hit.distance.toFixed(2));
-        });
-        // Visualize the ray
 
         rippleAt(screenPt.x, screenPt.y, hits.length > 0);
         if (!hits.length) return;
