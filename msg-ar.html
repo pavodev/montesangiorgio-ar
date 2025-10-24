@@ -704,9 +704,10 @@
       pin.setAttribute('cursor', 'rayOrigin: mouse');
       pin.setAttribute("scale", "3.5 3.5 3.5");        /* uniform scale */
       pin.setAttribute("gltf-model", "#pin");
+      // pin.setAttribute("look-at", "[camera]");
       pin.dataset.idx = idx;
-      pin.setAttribute('animation__pulse',
-        'startEvents: pulse; property: scale; from: 3.5 3.5 3.5; to: 4.5 4.5 4.5; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
+      // pin.setAttribute(`animation__pulse-${idx}`,
+      //   `startEvents: pulse-${idx}; property: scale; from: 3.5 3.5 3.5; to: 4.5 4.5 4.5; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1`);
       marker.appendChild(pin);
       pin.object3D.frustumCulled = false;
 
@@ -722,8 +723,8 @@
       label.setAttribute("side", "double");
       label.setAttribute("look-at", "[camera]");
       label.dataset.idx = idx;
-      // label.setAttribute('animation__lpulse',
-      //   'startEvents: lpulse; property: scale; from: 2.5 2.5 2.5; to: 3 3 3; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
+      // label.setAttribute(`animation__lpulse-${idx}`,
+      //   `startEvents: lpulse-${idx}; property: scale; from: 1.5 1.5 1.5; to: 1.8 1.8 1.8; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1`);
       marker.appendChild(label);
       label.object3D.frustumCulled = false;
 
@@ -737,8 +738,8 @@
       hitBox.classList.add("clickable");
       hitBox.setAttribute("material", {
         color: '#FFF',
-        opacity: 0.0,  // completely invisible
-        transparent: true,
+        opacity: 0.2,  // completely invisible
+        transparent: false,
         side: 'double',
         depthTest: false,  // don't interfere with depth testing
         depthWrite: false   // don't write to depth buffer
@@ -749,6 +750,7 @@
       hitBox.setAttribute('width', hitboxWidth);
       hitBox.setAttribute('height', hitboxHeight);
       hitBox.setAttribute('depth', hitboxDepth);
+      hitBox.setAttribute("look-at", "[camera]");
       hitBox.setAttribute('cursor', 'rayOrigin: mouse');
       hitBox.dataset.idx = idx;
       marker.appendChild(hitBox);
@@ -774,9 +776,19 @@
         const data = popupData[idx];
         if (!data) return;
 
-        // Emit animations
-        pin.emit('pulse');
-        label.emit('lpulse');
+        // Get the correct pin and label elements for this specific idx
+        const mainMarker = document.querySelector('#main-marker');
+        if (mainMarker) {
+          const pins = Array.from(mainMarker.children).filter(n => n.getAttribute && n.getAttribute('gltf-model'));
+          const labels = Array.from(mainMarker.children).filter(n => n.tagName === 'A-TEXT');
+
+          const clickedPin = pins.find(p => p.dataset.idx === idx.toString());
+          const clickedLabel = labels.find(l => l.dataset.idx === idx.toString());
+
+          // Emit animations - use unique event names for each pin
+          if (clickedPin) clickedPin.emit(`pulse-${idx}`);
+          if (clickedLabel) clickedLabel.emit(`lpulse-${idx}`);
+        }
 
         // Haptic feedback
         if (navigator.vibrate) {
@@ -957,8 +969,8 @@
           const pin = pins.find(p => p.dataset.idx === idx.toString());
           const label = labels.find(l => l.dataset.idx === idx.toString());
 
-          if (pin) pin.emit('pulse');
-          if (label) label.emit('lpulse');
+          if (pin) pin.emit(`pulse-${idx}`);
+          if (label) label.emit(`lpulse-${idx}`);
         }
         if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) { } }
         showPopup(data);
