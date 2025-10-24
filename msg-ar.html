@@ -346,6 +346,8 @@
   </script>
 
   <script>
+    const CM_TO_AR_SCALE = 0.35;
+
     /* Content data */
     const copyright = "<div class=\"divider\"></div><p>Tutte le foto sono state scattate da Heinz Plenge e sono disponibili sotto la <a href=\"https://creativecommons.org/licenses/by-sa/4.0/\" target=\"_blank\" ref=\"noopener\">Licenza Creative Commons CC BY-SA 4.0</a>.</p><p><strong>©Heinz Plenge</strong></p>";
 
@@ -355,6 +357,7 @@
         pattern: "data/letterA.patt",
         title: "Quando le montagne erano oceani",
         pin_title: "La nascita",
+        pin_position: { x: -15 * CM_TO_AR_SCALE, y: 0, z: -10 * CM_TO_AR_SCALE },
         content: "<p>Immagina di tuffarti indietro nel tempo, 250 milioni di anni fa. Dove oggi si alza il Monte San Giorgio, c’era un mare caldo e luminoso, attraversato da rettili marini, pesci scintillanti e strane piante che ondeggiavano sul fondale. Strato dopo strato, quel mondo è rimasto impresso nella roccia come in un album fotografico della vita antica. Oggi, camminando tra i suoi sentieri, non calpestiamo solo pietre, ma i resti di un oceano scomparso: un tesoro geologico che ci svela come le montagne nascono dal mare e come la vita rinasce nel tempo.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
           {
@@ -385,6 +388,7 @@
         pattern: "data/letterB.patt",
         title: "Il Monte San Giorgio, una lunga storia della vita",
         pin_title: "Storia della vita",
+        pin_position: { x: -10 * CM_TO_AR_SCALE, y: 0, z: -20 * CM_TO_AR_SCALE },
         content: "<p>Il Monte San Giorgio non è solo la montagna dei fossili triassici, ma anche un luogo che custodisce la memoria umana. Qui, natura e cultura si intrecciano: i luoghi riconosciuti come sacri sono diventati templi e santuari cristiani;  e le vie di transito sono rimaste sentieri di incontri. Ogni epoca ha inciso segni che ancora oggi raccontano la lunga storia della coevoluzione della vita del bosco e di quella umana.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
           {
@@ -415,6 +419,7 @@
         pattern: "data/letterC.patt",
         title: "Botanica",
         pin_title: "Botanica",
+        pin_position: { x: 0 * CM_TO_AR_SCALE, y: 0, z: 0 * CM_TO_AR_SCALE },
         content: "<p>Il Monte San Giorgio non racconta solo storie di fossili e mari antichi, ma anche di piante che curano, nutrono e profumano il tempo presente. Qui la biodiversità è straordinaria: tra boschi, radure e pendii crescono specie rare e preziose, molte conosciute fin dall’antichità per le loro proprietà medicinali e alimentari.</p><p>In questa valigia troverai semi da piantare, simbolo di continuità e vita: un invito a portare un frammento di questa montagna nel tuo giardino.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
           {
@@ -676,15 +681,17 @@
 
     const scene = document.getElementById("sceneRoot");
 
+    const marker = document.createElement("a-marker");
+    marker.setAttribute("type", "pattern");
+    marker.setAttribute("url", "data/letterA.patt");
+    marker.setAttribute("id", "main-marker");
+
     popupData.forEach((item, idx) => {
-      const marker = document.createElement("a-marker");
-      marker.setAttribute("type", "pattern");
-      marker.setAttribute("url", item.pattern);
-      marker.setAttribute("id", "marker-" + item.id);
 
       // Pin model
       const pin = document.createElement("a-entity");
-      pin.setAttribute("position", "0 0 0");
+      pin.setAttribute("position", `${item.pin_position.x} ${item.pin_position.y} ${item.pin_position.z}`);
+      // pin.setAttribute("position", "0 0 0");
       pin.setAttribute("scale", "4.5 4.5 4.5");        /* uniform scale */
       pin.setAttribute("gltf-model", "#pin");
       pin.dataset.idx = idx;
@@ -703,7 +710,8 @@
       label.setAttribute("value", item.pin_title);
       label.setAttribute("align", "center");
       label.setAttribute("color", "#FFFFFF");
-      label.setAttribute("position", "0 3 0");
+      label.setAttribute("position", `${item.pin_position.x} ${item.pin_position.y + 3} ${item.pin_position.z}`);
+      // label.setAttribute("position", "0 3 0");
       label.setAttribute("scale", "2.5 2.5 2.5");  /* uniform */
       label.setAttribute("side", "double");
       label.setAttribute("look-at", "[camera]");
@@ -714,12 +722,17 @@
 
       // Transparent hit box
       const hitBox = document.createElement("a-box");
-      hitBox.setAttribute("material", "color: #FFF; opacity: 0.001; transparent: true");
+      hitBox.setAttribute("material", {
+        color: '#FFF',
+        opacity: 0.3,      // keep visible for testing
+        transparent: true,
+        side: 'double',
+        depthTest: true,   // ensure proper depth testing
+        depthWrite: true   // write to depth buffer
+      });
       hitBox.classList.add("clickable");
       hitBox.dataset.idx = idx;
       marker.appendChild(hitBox);
-
-      scene.appendChild(marker);
 
       // Click handler
       const handleClick = () => {
@@ -764,10 +777,22 @@
         const centerZ = (minZ + maxZ) / 2;
         const centerY = bottomY + totalH / 2;
 
+        // Position hitbox relative to pin position
+        const pinPos = pin.object3D.position;
+
+        console.log(`Pin ${idx}: expected position:`, item.pin_position.x, item.pin_position.y, item.pin_position.z);
+        console.log(`Pin ${idx}: object3D position:`, pinPos.x, pinPos.y, pinPos.z);
+
+
         hitBox.setAttribute('position', `${centerX} ${centerY} ${centerZ}`);
-        hitBox.setAttribute('width', totalW);
-        hitBox.setAttribute('height', totalH);
-        hitBox.setAttribute('depth', totalD);
+
+        // hitBox.setAttribute('position', `${pinPos.x + centerX} ${pinPos.y + centerY} ${pinPos.z + centerZ}`);
+        // hitBox.setAttribute('position', `${centerX} ${centerY} ${centerZ}`);
+        hitBox.setAttribute('width', totalW * 3);   // 3x wider
+        hitBox.setAttribute('height', totalH * 2);  // 2x taller
+        hitBox.setAttribute('depth', totalD * 3);   // 3x deeper
+
+        console.log(`Hitbox ${idx} final position:`, centerX, centerY, centerZ);
       };
 
       pin.addEventListener('model-loaded', sizeHitBox);
@@ -781,6 +806,8 @@
       label.addEventListener("click", handleClick);
     });
 
+    scene.appendChild(marker);
+
     /* Touch/click raycasting with ripple feedback (no resize meddling) */
     scene.addEventListener('loaded', () => {
       const THREE = window.THREE;
@@ -792,8 +819,10 @@
       function getCanvas() {
         return scene.canvas || (scene.renderer && scene.renderer.domElement);
       }
+
       function visibleClickableObjects() {
         const els = Array.from(document.querySelectorAll('.clickable'));
+        console.log("ELS", els);
         return els
           .filter(el => {
             let m = el;
@@ -803,10 +832,12 @@
           .map(el => el.object3D)
           .filter(Boolean);
       }
+
       function getPoint(ev) {
         const t = ev.touches ? ev.touches[0] : ev.changedTouches ? ev.changedTouches[0] : ev;
         return { x: t.clientX, y: t.clientY };
       }
+
       function ndcFromEvent(ev, canvas) {
         const p = getPoint(ev);
         const rect = canvas.getBoundingClientRect();
@@ -814,6 +845,7 @@
         mouse.y = -((p.y - rect.top) / rect.height) * 2 + 1;
         return p;
       }
+
       function rippleAt(x, y, isHit) {
         const el = document.createElement('div');
         el.className = `ripple ${isHit ? 'hit' : 'miss'}`;
@@ -823,23 +855,52 @@
         el.addEventListener('animationend', () => el.remove());
         setTimeout(() => el.remove(), 700);
       }
+
       function findEntityFromObject(obj) {
         let cur = obj;
         while (cur && !cur.el) cur = cur.parent;
         return cur && cur.el ? cur.el : null;
       }
+
       function onTap(ev) {
         const now = Date.now();
         if (ev.type === 'click' && now - lastTouchTime < 400) return;
         if (ev.type.startsWith('touch')) lastTouchTime = now;
 
         const canvas = getCanvas();
-        if (!canvas || !scene.camera) return;
+        if (!canvas) return;
+
+        // Get the camera entity and its actual camera object
+        const cameraEl = document.querySelector('[camera]');
+        const camera = cameraEl?.components?.camera?.camera;
+
+        if (!camera) {
+          console.warn('❌ Camera not found');
+          return;
+        }
 
         const screenPt = ndcFromEvent(ev, canvas);
-        raycaster.setFromCamera(mouse, scene.camera);
+        raycaster.setFromCamera(mouse, camera);
+        raycaster.params.Mesh.threshold = 0.5;
+
         const targets = visibleClickableObjects();
+        console.log('🎯 Targets:', targets.length);
+
         const hits = raycaster.intersectObjects(targets, true);
+
+        console.log('👆 Tap at screen:', screenPt.x, screenPt.y);
+        console.log('🎯 Raycaster hits:', hits.length);
+        console.log('📍 Mouse NDC:', mouse.x.toFixed(2), mouse.y.toFixed(2));
+        console.log('📐 Ray origin:', raycaster.ray.origin);
+        console.log('📐 Ray direction:', raycaster.ray.direction);
+
+        // Check what's at the ray's path
+        const allHits = raycaster.intersectObjects(scene.object3D.children, true);
+        console.log('🔍 ALL intersections (not just clickable):', allHits.length);
+        hits.forEach((hit, i) => {
+          console.log(`  Hit ${i}:`, hit.object.type, 'distance:', hit.distance.toFixed(2));
+        });
+        // Visualize the ray
 
         rippleAt(screenPt.x, screenPt.y, hits.length > 0);
         if (!hits.length) return;
@@ -855,10 +916,14 @@
         const data = popupData[idx];
         if (!data) return;
 
-        const marker = document.querySelector(`#marker-${data.id}`);
-        if (marker) {
-          const pin = Array.from(marker.children).find(n => n.getAttribute && n.getAttribute('gltf-model'));
-          const label = Array.from(marker.children).find(n => n.tagName === 'A-TEXT');
+        const mainMarker = document.querySelector('#main-marker');
+        if (mainMarker) {
+          const pins = Array.from(mainMarker.children).filter(n => n.getAttribute && n.getAttribute('gltf-model'));
+          const labels = Array.from(mainMarker.children).filter(n => n.tagName === 'A-TEXT');
+
+          const pin = pins.find(p => p.dataset.idx === idx.toString());
+          const label = labels.find(l => l.dataset.idx === idx.toString());
+
           if (pin) pin.emit('pulse');
           if (label) label.emit('lpulse');
         }
