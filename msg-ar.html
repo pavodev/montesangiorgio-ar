@@ -85,6 +85,7 @@
       position: fixed;
       top: 10px;
       left: 50%;
+      text-align: center;
       transform: translateX(-50%);
       color: white;
       font-size: 22px;
@@ -136,10 +137,14 @@
     .card-buttons {
       position: sticky;
       top: 0;
-      height: 56px;
-      /* fixed bar height */
+      height: 56px !important;
+      min-height: 56px !important;
+      max-height: 56px !important;
+      /* fixed bar height - force it to stay constant */
       padding: 0 8px;
       display: block;
+      overflow: hidden;
+      box-sizing: border-box;
       /* we'll absolutely position the buttons */
     }
 
@@ -158,14 +163,19 @@
     /* back: left; close: right */
     .back-btn {
       left: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      /* Keep visibility: visible to maintain layout space */
+    }
+
+    .back-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .close-btn {
       right: 8px;
-    }
-
-    .back-btn {
-      display: none;
     }
 
     .close-btn,
@@ -356,7 +366,7 @@
         pattern: "data/letterA.patt",
         title: "1. Quando le montagne erano oceani",
         pin_title: "1. La nascita",
-        pin_position: { x: -15 * CM_TO_AR_SCALE, y: 0, z: -10 * CM_TO_AR_SCALE },
+        pin_position: { x: -14 * CM_TO_AR_SCALE, y: 1.5 * CM_TO_AR_SCALE, z: -8.5 * CM_TO_AR_SCALE },
         content: "<p>Immagina di tuffarti indietro nel tempo, 250 milioni di anni fa. Dove oggi si alza il Monte San Giorgio, c’era un mare caldo e luminoso, attraversato da rettili marini, pesci scintillanti e strane piante che ondeggiavano sul fondale. Strato dopo strato, quel mondo è rimasto impresso nella roccia come in un album fotografico della vita antica. Oggi, camminando tra i suoi sentieri, non calpestiamo solo pietre, ma i resti di un oceano scomparso: un tesoro geologico che ci svela come le montagne nascono dal mare e come la vita rinasce nel tempo.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
           {
@@ -387,7 +397,7 @@
         pattern: "data/letterB.patt",
         title: "2. Il Monte San Giorgio, una lunga storia della vita",
         pin_title: "2. Storia della vita",
-        pin_position: { x: -10 * CM_TO_AR_SCALE, y: 0, z: -20 * CM_TO_AR_SCALE },
+        pin_position: { x: -14 * CM_TO_AR_SCALE, y: CM_TO_AR_SCALE, z: -15 * CM_TO_AR_SCALE },
         content: "<p>Il Monte San Giorgio non è solo la montagna dei fossili triassici, ma anche un luogo che custodisce la memoria umana. Qui, natura e cultura si intrecciano: i luoghi riconosciuti come sacri sono diventati templi e santuari cristiani;  e le vie di transito sono rimaste sentieri di incontri. Ogni epoca ha inciso segni che ancora oggi raccontano la lunga storia della coevoluzione della vita del bosco e di quella umana.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
           {
@@ -418,7 +428,7 @@
         pattern: "data/letterC.patt",
         title: "3. Botanica",
         pin_title: "3. Botanica",
-        pin_position: { x: 0 * CM_TO_AR_SCALE, y: 0, z: 0 * CM_TO_AR_SCALE },
+        pin_position: { x: -7 * CM_TO_AR_SCALE, y: 0, z: -4.5 * CM_TO_AR_SCALE },
         content: "<p>Il Monte San Giorgio non racconta solo storie di fossili e mari antichi, ma anche di piante che curano, nutrono e profumano il tempo presente. Qui la biodiversità è straordinaria: tra boschi, radure e pendii crescono specie rare e preziose, molte conosciute fin dall’antichità per le loro proprietà medicinali e alimentari.</p><p>In questa valigia troverai semi da piantare, simbolo di continuità e vita: un invito a portare un frammento di questa montagna nel tuo giardino.</p><h3>Seleziona i capitoli per approfondire</h3>",
         chapters: [
           {
@@ -540,7 +550,7 @@
       currentChapterIndex = idx;
       const html = buildChapterHTML(item, idx);
       return swapContentWithSlide(html, () => {
-        backBtn.style.display = 'block';
+        backBtn.classList.add('visible');
         destroyAllPanos();
         initAllPanosIn(popupBody);
       }, { out: 'left', in: 'right' });  // section -> chapter
@@ -554,7 +564,7 @@
       const html = buildSectionHTML(currentItem);
 
       return swapContentWithSlide(html, () => {
-        backBtn.style.display = 'none';
+        backBtn.classList.remove('visible');
         initAllPanosIn(popupBody);
         bindChapterLinks(currentItem);
       }, { out: 'right', in: 'left' });
@@ -575,7 +585,7 @@
 
       gsap.set(popupEl, { display: 'flex', opacity: 0, yPercent: 6, scale: 0.98, transformOrigin: '50% 100%' });
       gsap.to(popupEl, {
-        opacity: 1, yPercent: 0, scale: 1, duration: dur, ease: 'power3.out',
+        opacity: 1, yPercent: 0, scale: 1, duration: dur, ease: 'power3.out', delay: 0.3,
         onComplete: () => { isAnimating = false; }
       });
     }
@@ -660,7 +670,7 @@
       popupBody.parentElement.scrollTop = 0;
 
       // Section starts visible (no slide swap for first render)
-      backBtn.style.display = 'none';
+      backBtn.classList.remove('visible');
       destroyAllPanos();
       initAllPanosIn(popupBody);
       bindChapterLinks(item);
@@ -692,19 +702,13 @@
       pin.classList.add("clickable");
       pin.setAttribute("position", `${item.pin_position.x} ${item.pin_position.y} ${item.pin_position.z}`);
       pin.setAttribute('cursor', 'rayOrigin: mouse');
-      pin.setAttribute("scale", "4.5 4.5 4.5");        /* uniform scale */
+      pin.setAttribute("scale", "3.5 3.5 3.5");        /* uniform scale */
       pin.setAttribute("gltf-model", "#pin");
       pin.dataset.idx = idx;
-      // pin.setAttribute('animation__pulse',
-      //   'startEvents: pulse; property: scale; from: 7 7 7; to: 8.5 8.5 8.5; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
+      pin.setAttribute('animation__pulse',
+        'startEvents: pulse; property: scale; from: 3.5 3.5 3.5; to: 4.5 4.5 4.5; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
       marker.appendChild(pin);
       pin.object3D.frustumCulled = false;
-
-      // Test cube (should look perfectly cubic)
-      // const test = document.createElement('a-box');
-      // test.setAttribute('position', '0 2 0');
-      // test.setAttribute('width', '1'); test.setAttribute('height', '1'); test.setAttribute('depth', '1');
-      // marker.appendChild(test);
 
       // Label
       const label = document.createElement("a-text");
@@ -712,14 +716,14 @@
       label.setAttribute("value", item.pin_title);
       label.setAttribute("align", "center");
       label.setAttribute("color", "#FFFFFF");
-      label.setAttribute("position", `${item.pin_position.x} ${item.pin_position.y + 3} ${item.pin_position.z}`);
+      label.setAttribute("position", `${item.pin_position.x} ${item.pin_position.y + 2} ${item.pin_position.z}`);
       label.setAttribute('cursor', 'rayOrigin: mouse');
-      label.setAttribute("scale", "2.5 2.5 2.5");  /* uniform */
+      label.setAttribute("scale", "1.5 1.5 1.5");  /* uniform */
       label.setAttribute("side", "double");
-      // label.setAttribute("look-at", "[camera]");
+      label.setAttribute("look-at", "[camera]");
       label.dataset.idx = idx;
-      label.setAttribute('animation__lpulse',
-        'startEvents: lpulse; property: scale; from: 2.5 2.5 2.5; to: 3 3 3; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
+      // label.setAttribute('animation__lpulse',
+      //   'startEvents: lpulse; property: scale; from: 2.5 2.5 2.5; to: 3 3 3; dir: alternate; dur: 120; easing: easeOutCubic; loop: 1');
       marker.appendChild(label);
       label.object3D.frustumCulled = false;
 
